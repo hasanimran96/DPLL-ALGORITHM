@@ -17,6 +17,8 @@ def parse_dimacs(filename):
 clauses = parse_dimacs(sys.argv[1])
 print(clauses)
 
+print(type(clauses))
+
 trail = []
 
 
@@ -55,5 +57,5 @@ def backtrack():
             return False
         x, v, b = trail.pop
         if(b == False):
-            trail.push(x, v, True)
+            trail.append(x, v, True)
             return True
