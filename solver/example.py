@@ -15,64 +15,84 @@ def parse_dimacs(filename):
 
 
 clauses = parse_dimacs(sys.argv[1])
+clauses = [[1, 2], [-2, -4]]
 print(clauses)
 
 print(type(clauses))
 
 trail = []
 
+variable_lookup = {}
+
+distinct_variables = []
+for i in range(16):
+    distinct_variables.append(i+1)
+
 
 def DPLL(CNF_formula):
-    trail.clear
-    if(BCP() == False):
+    print("DPLL")
+    trail.clear()
+    if(BCP(CNF_formula) == False):
         return 'UNSAT'
     while(True):
         if(decide() == False):
             return 'SAT'
-        while(BCP() == False):
+        while(BCP(CNF_formula) == False):
             if(backtrack() == False):
-                return
+                return 'UNSAT'
 
 
 def BCP(clauses):
-    for i in range(len(clauses)):
-        if(len(clauses[i]) == 1):
-            v = 1
-            trail.append(clauses[i], v)
-        for literal in range(len(clauses[i])):
-            while(literal.value != 1):
+    print("BCP")
+    for clause in clauses:
+        temp_unassigned = []
+        isUnstatisfied = True
+        for literal in clause:
+            v = variable_lookup.get(literal, "UNASSIGNED")
+            if(v == "UNASSIGNED"):
+                isUnstatisfied = False
+                temp_unassigned.append(literal)
                 continue
-            if(literal.value == 0):
-                return False
-    return True
-
-# def BCP():
-#     # while(there is a unit clause implying that a variable x must be set to a value v):
-#     # 	trail.append(x, v, True)
-#         # if(there is an unsatisfied clause):
-#         # 	return False
-#     return True
+            elif(v == 0):
+                continue
+            elif(v == 1):
+                return True
+        if(len(temp_unassigned) == 1):
+            v = 1
+            variable_lookup[temp_unassigned[0]] = v
+            trail.append([temp_unassigned[0], v])
+            return True
+        elif(len(temp_unassigned) > 1):
+            return True
+        if(isUnstatisfied):
+            return False
 
 
 def decide():
-    for clause in range(len(clauses)):
-        for literal in clause:
-            if(literal.value != None):
-                return False
-            # assigning false as default
+    print("decide")
+    for variable in distinct_variables:
+        if(variable in variable_lookup == True):
+            continue
+        else:
             v = 0
-            trail.append(literal, v)
+            trail.append([variable, v])
+            variable_lookup[variable] = v
             return True
+    return False
 
 
 def backtrack():
+    print("backtrack")
     while(True):
-        if(len(trail) == 0):
+        print(1)
+        if not trail:
             return False
         x, v = trail.pop()
+        print(x, v)
         if(v == 0):
             v = 1
-            trail.append(x, v)
+            trail.append([x, v])
+            variable_lookup[x] = v
             return True
 
 
