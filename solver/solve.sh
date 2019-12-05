@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ##### C++
-echo "C++"
-./solve-cpp $*
+# echo "C++"
+# ./solve-cpp $*
 
 ##### Java
-echo "Java"
-java Solver $*
+# echo "Java"
+# java Solver $*
 
 ##### Python
 echo "Python"
