@@ -34,7 +34,7 @@ def DPLL(CNF_formula):
                 return
 
 
-def check_unit(clauses):
+def BCP(clauses):
     for i in range(len(clauses)):
         if(len(clauses[i]) == 1):
             v = 1
@@ -74,3 +74,7 @@ def backtrack():
             v = 1
             trail.append(x, v)
             return True
+
+
+output = DPLL(clauses)
+print(output)
