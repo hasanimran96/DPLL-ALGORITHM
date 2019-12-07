@@ -15,86 +15,140 @@ def parse_dimacs(filename):
 
 
 clauses = parse_dimacs(sys.argv[1])
-clauses = [[1, 2], [-2, -4]]
-print(clauses)
+# clauses = [[-1], [1]]
+# print(clauses)
 
-print(type(clauses))
+# print(type(clauses))
 
 trail = []
 
 variable_lookup = {}
 
-distinct_variables = []
-for i in range(16):
-    distinct_variables.append(i+1)
+for clause in clauses:
+    for literal in clause:
+        if(literal < 0):
+            literal = literal * -1
+        if(literal not in variable_lookup):
+            variable_lookup[literal] = -1
 
 
-def DPLL(CNF_formula):
+# print(variable_lookup)
+
+
+def DPLL():
+    global clauses
+    global trail
+    global variable_lookup
     print("DPLL")
     trail.clear()
-    if(BCP(CNF_formula) == False):
+    print(BCP() == False)
+    if(BCP() == False):
         return 'UNSAT'
     while(True):
         if(decide() == False):
             return 'SAT'
-        while(BCP(CNF_formula) == False):
+        while(BCP() == False):
             if(backtrack() == False):
                 return 'UNSAT'
 
 
-def BCP(clauses):
-    print("BCP")
+def check_unit_clause(clause):
+    sum = 0
+    onlyUnassigned = -1
+    for literal in clause:
+        if(literal < 0):
+            literal = literal * -1
+        v = variable_lookup.get(literal)
+        if(v == -1):
+            onlyUnassigned = literal
+        sum = sum + v
+    if(sum == -1):
+        return onlyUnassigned
+    return None
+
+
+def check_unsatisfied_clause():
+    global clauses
     for clause in clauses:
-        temp_unassigned = []
-        isUnstatisfied = True
+        temp_list = []
         for literal in clause:
-            v = variable_lookup.get(literal, "UNASSIGNED")
-            if(v == "UNASSIGNED"):
-                isUnstatisfied = False
-                temp_unassigned.append(literal)
-                continue
-            elif(v == 0):
-                continue
-            elif(v == 1):
-                return True
-        if(len(temp_unassigned) == 1):
-            v = 1
-            variable_lookup[temp_unassigned[0]] = v
-            trail.append([temp_unassigned[0], v])
-            return True
-        elif(len(temp_unassigned) > 1):
-            return True
-        if(isUnstatisfied):
+            if(literal < 0):
+                literal = literal * -1
+            v = variable_lookup.get(literal)
+            temp_list.append(v)
+        if(all(i == 0 for i in temp_list)):
             return False
+    return True
+
+
+def BCP():
+    global clauses
+    global trail
+    global variable_lookup
+    print("BCP")
+    i = 0
+    while(i < len(clauses)):
+        if(check_unit_clause(clauses[i]) != None):
+            key = check_unit_clause(clauses[i])
+            trail.append([key, 1, 'true'])
+            variable_lookup[key] = 1
+        i += 1
+    if(check_unsatisfied_clause()):
+        return False
+    return True
 
 
 def decide():
+    global trail
+    global variable_lookup
     print("decide")
-    for variable in distinct_variables:
-        if(variable in variable_lookup == True):
-            continue
-        else:
-            v = 0
-            trail.append([variable, v])
-            variable_lookup[variable] = v
-            return True
-    return False
+    if(all(x != -1 for x in variable_lookup.values())):
+        return False
+
+    unassigned = -1
+    for key, value in variable_lookup.items():
+        if (value == -1):
+            unassigned = key
+            break
+    v = 0
+    trail.append([unassigned, v, 'false'])
+    print(trail)
+    variable_lookup[unassigned] = v
+    return True
 
 
 def backtrack():
+    global trail
+    global variable_lookup
     print("backtrack")
     while(True):
-        print(1)
         if not trail:
             return False
-        x, v = trail.pop()
-        print(x, v)
-        if(v == 0):
+
+        x, v, b = trail.pop()
+        if(b == 'false'):
             v = 1
-            trail.append([x, v])
+            trail.append([x, v, 'true'])
+            print(trail)
             variable_lookup[x] = v
             return True
 
 
-output = DPLL(clauses)
+def print_assignments():
+    global clauses
+    clauses_assigned = []
+    for clause in clauses:
+        clause_assigned = []
+        for literal in clause:
+            if(literal < 0):
+                literal = literal * -1
+            v = variable_lookup.get(literal)
+            clause_assigned.append(v)
+        clauses_assigned.append(clause_assigned)
+    print(clauses_assigned)
+
+
+output = DPLL()
 print(output)
+print_assignments()
+print(variable_lookup)
