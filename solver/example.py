@@ -41,7 +41,6 @@ def DPLL():
     global variable_lookup
     print("DPLL")
     trail.clear()
-    print(BCP() == False)
     if(BCP() == False):
         return 'UNSAT'
     while(True):
@@ -53,32 +52,55 @@ def DPLL():
 
 
 def check_unit_clause(clause):
-    sum = 0
-    onlyUnassigned = -1
+    zeroes = 0
+    ones = 0
+    unassigned = 0
     for literal in clause:
         if(literal < 0):
             literal = literal * -1
-        v = variable_lookup.get(literal)
+            v = variable_lookup.get(literal)
+            if(v != -1):
+                v = 1-v
+        else:
+            v = variable_lookup.get(literal)
+        if(v == 0):
+            zeroes += 1
+
         if(v == -1):
-            onlyUnassigned = literal
-        sum = sum + v
-    if(sum == -1):
-        return onlyUnassigned
-    return None
+            unassigned += 1
+            key = literal
+        if(v == 1):
+            ones += 1
+    if(ones > 0):
+        return None
+    if(unassigned == 1):
+        return key
+# Checks for unsatisfied in all ?
 
 
 def check_unsatisfied_clause():
     global clauses
     for clause in clauses:
-        temp_list = []
+        zeroes = 0
+        ones = 0
+        unassigned = 0
         for literal in clause:
             if(literal < 0):
                 literal = literal * -1
-            v = variable_lookup.get(literal)
-            temp_list.append(v)
-        if(all(i == 0 for i in temp_list)):
-            return False
-    return True
+                v = variable_lookup.get(literal)
+                if(v != -1):
+                    v = 1-v
+            else:
+                v = variable_lookup.get(literal)
+            if(v == 0):
+                zeroes += 1
+            if(v == -1):
+                unassigned += 1
+            if(v == 1):
+                ones += 1
+        if(zeroes == len(clause)):
+            return True
+    return False
 
 
 def BCP():
@@ -127,10 +149,9 @@ def backtrack():
 
         x, v, b = trail.pop()
         if(b == 'false'):
-            v = 1
-            trail.append([x, v, 'true'])
+            trail.append([x, 1-v, 'true'])
             print(trail)
-            variable_lookup[x] = v
+            variable_lookup[x] = 1 - v
             return True
 
 
@@ -142,7 +163,11 @@ def print_assignments():
         for literal in clause:
             if(literal < 0):
                 literal = literal * -1
-            v = variable_lookup.get(literal)
+                v = variable_lookup.get(literal)
+                if(v != -1):
+                    v = 1-v
+            else:
+                v = variable_lookup.get(literal)
             clause_assigned.append(v)
         clauses_assigned.append(clause_assigned)
     print(clauses_assigned)
