@@ -15,10 +15,6 @@ def parse_dimacs(filename):
 
 
 clauses = parse_dimacs(sys.argv[1])
-# clauses = [[-1], [1]]
-# print(clauses)
-
-# print(type(clauses))
 
 trail = []
 
@@ -30,9 +26,6 @@ for clause in clauses:
             literal = literal * -1
         if(literal not in variable_lookup):
             variable_lookup[literal] = -1
-
-
-# print(variable_lookup)
 
 
 def DPLL():
@@ -60,44 +53,71 @@ def check_unit_clause(clause):
             literal = literal * -1
             v = variable_lookup.get(literal)
             if(v != -1):
-                v = 1-v
+                if(v == 0):
+                    v = 1
+                else:
+                    v = 0
+            if(v == 0):
+                zeroes += 1
+            if(v == -1):
+                unassigned += 1
+                if(unassigned > 1):
+                    break
+                key = literal * -1
+            if(v == 1):
+                break
+                # ones += 1
         else:
             v = variable_lookup.get(literal)
-        if(v == 0):
-            zeroes += 1
-
-        if(v == -1):
-            unassigned += 1
-            key = literal
-        if(v == 1):
-            ones += 1
+            if(v == 0):
+                zeroes += 1
+            if(v == -1):
+                unassigned += 1
+                if(unassigned > 1):
+                    break
+                key = literal
+            if(v == 1):
+                break
+                # ones += 1
     if(ones > 0):
         return None
-    if(unassigned == 1):
+    if(unassigned == 1 and zeroes == (len(clause)-1)):
         return key
-# Checks for unsatisfied in all ?
 
 
 def check_unsatisfied_clause():
     global clauses
     for clause in clauses:
         zeroes = 0
-        ones = 0
-        unassigned = 0
+        # ones = 0
+        # unassigned = 0
         for literal in clause:
             if(literal < 0):
                 literal = literal * -1
                 v = variable_lookup.get(literal)
                 if(v != -1):
-                    v = 1-v
+                    if(v == 0):
+                        v = 1
+                    else:
+                        v = 0
+                if(v == 0):
+                    zeroes += 1
+                if(v == -1):
+                    break
+                    # unassigned += 1
+                if(v == 1):
+                    break
+                    # ones += 1
             else:
                 v = variable_lookup.get(literal)
-            if(v == 0):
-                zeroes += 1
-            if(v == -1):
-                unassigned += 1
-            if(v == 1):
-                ones += 1
+                if(v == 0):
+                    zeroes += 1
+                if(v == -1):
+                    break
+                    # unassigned += 1
+                if(v == 1):
+                    break
+                    # ones += 1
         if(zeroes == len(clause)):
             return True
     return False
@@ -111,9 +131,14 @@ def BCP():
     i = 0
     while(i < len(clauses)):
         if(check_unit_clause(clauses[i]) != None):
-            key = check_unit_clause(clauses[i])
-            trail.append([key, 1, 'true'])
-            variable_lookup[key] = 1
+            literal = check_unit_clause(clauses[i])
+            if(literal < 0):
+                literal = literal * -1
+                trail.append([literal, 0, 'true'])
+                variable_lookup[literal] = 0
+            else:
+                trail.append([literal, 1, 'true'])
+                variable_lookup[literal] = 1
         i += 1
     if(check_unsatisfied_clause()):
         return False
@@ -134,7 +159,6 @@ def decide():
             break
     v = 0
     trail.append([unassigned, v, 'false'])
-    print(trail)
     variable_lookup[unassigned] = v
     return True
 
@@ -148,10 +172,15 @@ def backtrack():
             return False
 
         x, v, b = trail.pop()
-        if(b == 'false'):
-            trail.append([x, 1-v, 'true'])
-            print(trail)
-            variable_lookup[x] = 1 - v
+        if(b == 'true'):
+            variable_lookup[x] = -1
+        else:
+            if(v == 0):
+                trail.append([x, 1, 'true'])
+                variable_lookup[x] = 1
+            else:
+                trail.append([x, 0, 'true'])
+                variable_lookup[x] = 0
             return True
 
 
@@ -175,5 +204,5 @@ def print_assignments():
 
 output = DPLL()
 print(output)
-print_assignments()
+# print_assignments()
 print(variable_lookup)
