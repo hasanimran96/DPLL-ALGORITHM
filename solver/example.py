@@ -206,3 +206,10 @@ output = DPLL()
 print(output)
 # print_assignments()
 print(variable_lookup)
+
+if(output == "SAT"):
+    print('sat')
+    exit(10)
+elif(output == "UNSAT"):
+    print('unsat')
+    exit(20)
