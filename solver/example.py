@@ -32,7 +32,7 @@ def DPLL():
     global clauses
     global trail
     global variable_lookup
-    print("DPLL")
+    # print("DPLL")
     trail.clear()
     if(BCP() == False):
         return 'UNSAT'
@@ -127,7 +127,7 @@ def BCP():
     global clauses
     global trail
     global variable_lookup
-    print("BCP")
+    # print("BCP")
     i = 0
     while(i < len(clauses)):
         if(check_unit_clause(clauses[i]) != None):
@@ -148,7 +148,7 @@ def BCP():
 def decide():
     global trail
     global variable_lookup
-    print("decide")
+    # print("decide")
     if(all(x != -1 for x in variable_lookup.values())):
         return False
 
@@ -166,7 +166,7 @@ def decide():
 def backtrack():
     global trail
     global variable_lookup
-    print("backtrack")
+    # print("backtrack")
     while(True):
         if not trail:
             return False
@@ -199,17 +199,17 @@ def print_assignments():
                 v = variable_lookup.get(literal)
             clause_assigned.append(v)
         clauses_assigned.append(clause_assigned)
-    print(clauses_assigned)
+    # print(clauses_assigned)
 
 
 output = DPLL()
-print(output)
+# print(output)
 # print_assignments()
-print(variable_lookup)
+# print(variable_lookup)
 
 if(output == "SAT"):
-    print('sat')
-    exit(10)
-elif(output == "UNSAT"):
-    print('unsat')
-    exit(20)
+    print("sat")
+    sys.exit(10)
+else:
+    print("unsat")
+    sys.exit(20)
