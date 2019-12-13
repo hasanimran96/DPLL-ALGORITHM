@@ -1,3 +1,17 @@
+#-----------------------------------------------#
+#-----------------------------------------------#
+# Name - HASAN IMRAN
+# Matriculation number - 407380
+# initially while working on the assignment I had made a GitHub repository
+# the project repository can be found on this link:
+# https://github.com/hasanimran96/DPLL-ALGORITHM
+# by default the repository was set to PUBLIC
+# however I changed the settings of the repository to PRIVATE
+# I will change the repository settings to PUBLIC again after
+# the deadline of the project submission
+#-----------------------------------------------#
+#-----------------------------------------------#
+
 import sys
 
 
@@ -16,10 +30,13 @@ def parse_dimacs(filename):
 
 clauses = parse_dimacs(sys.argv[1])
 
+# the stack
 trail = []
 
+# dict to keep the assignment of the literals
 variable_lookup = {}
 
+# initially assiging all the literals as -1
 for clause in clauses:
     for literal in clause:
         if(literal < 0):
@@ -44,6 +61,8 @@ def DPLL():
                 return 'UNSAT'
 
 
+# function to check for unit clauses
+# in the BCP function
 def check_unit_clause(clause):
     zeroes = 0
     ones = 0
@@ -85,6 +104,8 @@ def check_unit_clause(clause):
         return key
 
 
+# function to check for an unsatisfiable clause
+# in the BCP function
 def check_unsatisfied_clause():
     global clauses
     for clause in clauses:
@@ -149,6 +170,8 @@ def decide():
     global trail
     global variable_lookup
     # print("decide")
+    # pythonic way to check for an unassigned literal in a list
+    # unasssigned literal is given a value as -1 by default
     if(all(x != -1 for x in variable_lookup.values())):
         return False
 
@@ -184,6 +207,8 @@ def backtrack():
             return True
 
 
+# for debugging the algorithm
+# prints the asignments instead of the literals in the clauses
 def print_assignments():
     global clauses
     clauses_assigned = []
@@ -207,6 +232,7 @@ output = DPLL()
 # print_assignments()
 # print(variable_lookup)
 
+# for assignment grading
 if(output == "SAT"):
     print("sat")
     sys.exit(10)
