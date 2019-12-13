@@ -175,11 +175,18 @@ def decide():
     if(all(x != -1 for x in variable_lookup.values())):
         return False
 
+    # variable ordering:
+    # checks the dictionary for the first unassigned variable
+    # so basically follows the clauses and the order in which the variables
+    # occur in the clauses
+
     unassigned = -1
     for key, value in variable_lookup.items():
         if (value == -1):
             unassigned = key
             break
+
+    # assigns false(0) as default to the unasssigned variable
     v = 0
     trail.append([unassigned, v, 'false'])
     variable_lookup[unassigned] = v
